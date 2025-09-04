@@ -20,6 +20,7 @@ def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     return render(request, 'shop/product_detail.html', {'product': product})
 
+
 @login_required
 @require_POST
 def add_to_cart(request):
