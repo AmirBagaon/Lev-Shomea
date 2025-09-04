@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}לבשמעא - אתר צדקה{% endblock %}</title>
+    <title>{% block title %}לב שומע - אתר צדקה{% endblock %}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -119,7 +119,7 @@
         <div style="clear: both;"></div>
         
         <div class="header">
-            <h1><a href="{% url 'shop:home' %}" style="text-decoration: none; color: inherit;">לבשמעא - אתר צדקה</a></h1>
+            <h1><a href="{% url 'shop:home' %}" style="text-decoration: none; color: inherit;">לב שומע - אתר צדקה</a></h1>
             <p>ברוכים הבאים לאתר הצדקה שלנו</p>
             <a href="{% url 'shop:product_list' %}" class="btn">מוצרים</a>
             {% if user.is_staff %}
