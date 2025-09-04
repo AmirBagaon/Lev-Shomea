@@ -1,0 +1,44 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}הרשמה - לבשמעא{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto;">
+    <h2>הרשמה</h2>
+    
+    {% if form.errors %}
+        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 10px 0;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div style="margin-bottom: 15px;">
+                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">{{ field.label }}:</label>
+                <input type="{{ field.field.widget.input_type }}" 
+                       name="{{ field.name }}" 
+                       id="{{ field.id_for_label }}" 
+                       {% if field.field.required %}required{% endif %}
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                {% if field.help_text %}
+                    <small style="color: #666; font-size: 12px;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn" style="width: 100%; margin-bottom: 15px;">הירשם</button>
+    </form>
+
+    <div style="text-align: center;">
+        <p>יש לך כבר חשבון? <a href="{% url 'accounts:login' %}" style="color: #007bff;">התחבר כאן</a></p>
+        <a href="{% url 'shop:product_list' %}" style="color: #666;">חזור למוצרים</a>
+    </div>
+</div>
+{% endblock %}

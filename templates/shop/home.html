@@ -1,0 +1,26 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>ברוכים הבאים לאתר לבשמעא</h2>
+    <p>אתר צדקה המאפשר לכם לרכוש מוצרים ולתרום למטרה טובה</p>
+    
+    <div style="margin: 40px 0;">
+        <a href="{% url 'shop:product_list' %}" class="btn" style="font-size: 18px; padding: 15px 30px;">צפה במוצרים</a>
+        
+        {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:register' %}" class="btn" style="font-size: 18px; padding: 15px 30px; background: #28a745;">הירשם עכשיו</a>
+        {% endif %}
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin: 30px 0;">
+        <h3>איך זה עובד?</h3>
+        <ol style="text-align: right; max-width: 600px; margin: 0 auto;">
+            <li style="margin: 10px 0;">הירשם לאתר</li>
+            <li style="margin: 10px 0;">בחר מוצרים והוסף לעגלה</li>
+            <li style="margin: 10px 0;">בצע תשלום מאובטח</li>
+            <li style="margin: 10px 0;">קבל את המוצרים בדואר</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}לבשמעא - אתר צדקה{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .user-menu {
+            float: left;
+            margin-bottom: 20px;
+        }
+        .user-menu a, .user-menu span {
+            margin-left: 10px;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .nav-link {
+            background: #007bff;
+            color: white;
+        }
+        .nav-link:hover {
+            background: #0056b3;
+        }
+        .cart-link {
+            background: #28a745;
+            color: white;
+            position: relative;
+        }
+        .cart-count {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 5px 5px 0;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .messages {
+            margin: 20px 0;
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="user-menu">
+            {% if user.is_authenticated %}
+                <span>שלום, {{ user.first_name|default:user.username }}!</span>
+                <a href="{% url 'shop:cart_detail' %}" class="cart-link">
+                    עגלת קניות
+                    {% if cart_count > 0 %}
+                        <span class="cart-count">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="nav-link">התנתק</a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav-link">התחבר</a>
+                <a href="{% url 'accounts:register' %}" class="nav-link">הירשם</a>
+            {% endif %}
+        </div>
+        <div style="clear: both;"></div>
+        
+        <div class="header">
+            <h1><a href="{% url 'shop:home' %}" style="text-decoration: none; color: inherit;">לבשמעא - אתר צדקה</a></h1>
+            <p>ברוכים הבאים לאתר הצדקה שלנו</p>
+            <a href="{% url 'shop:product_list' %}" class="btn">מוצרים</a>
+            {% if user.is_staff %}
+                <a href="/admin/" class="btn" style="background: #6c757d;">ממשק ניהול</a>
+            {% endif %}
+        </div>
+        
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
