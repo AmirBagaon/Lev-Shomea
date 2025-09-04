@@ -22,16 +22,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . .
 
+# Create staticfiles directory
+RUN mkdir -p staticfiles
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Run migrations (optional, can be done in Cloud Run)
-# RUN python manage.py migrate
-
 # Expose port
 EXPOSE 8080
-
-
 
 # Run the application
 CMD exec gunicorn --bind 0.0.0.0:8080 --workers 1 --threads 8 --timeout 0 levshomea.wsgi:application
