@@ -64,6 +64,7 @@ TEMPLATES = [
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 from decouple import config
 DATABASES = {
     'default': {

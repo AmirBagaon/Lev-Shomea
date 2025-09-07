@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הפרופיל שלי - לב שומע</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .order-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-processing { background-color: #cce5ff; color: #0066cc; }
+        .status-shipped { background-color: #d4edda; color: #155724; }
+        .status-delivered { background-color: #d1ecf1; color: #0c5460; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            padding: 8px 16px;
+        }
+        .btn-outline-primary:hover {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        .order-summary {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container profile-container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h1 class="mb-1">שלום, {{ user.first_name|default:user.username }}!</h1>
+                            <p class="mb-0 opacity-75">{{ user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="mt-3 mt-md-0">
+                        <small class="opacity-75">חבר מאז: {{ user.date_joined|date:"F Y" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container profile-container">
+        <!-- Quick Stats -->
+        <div class="profile-card">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-shopping-bag text-primary fs-2 mb-2"></i>
+                        <h4 class="mb-1">{{ orders.count }}</h4>
+                        <small class="text-muted">סה"כ הזמנות</small>
+                    </div>
+                </div>
+                <div class="col-md-4 border-start border-end">
+                    <div class="p-3">
+                        <i class="fas fa-heart text-danger fs-2 mb-2"></i>
+                        <h4 class="mb-1">₪{{ total_donations|floatformat:0|default:"0" }}</h4>
+                        <small class="text-muted">סה"כ תרומות</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-calendar-check text-success fs-2 mb-2"></i>
+                        <h4 class="mb-1">
+                            {% if orders.exists %}
+                                {{ orders.first.created|date:"M Y" }}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </h4>
+                        <small class="text-muted">הזמנה אחרונה</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="profile-card">
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    המשך קניות
+                </a>
+                <a href="{% url 'shop:cart_detail' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    עגלת קניות
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-primary">
+                    <i class="fas fa-print me-2"></i>
+                    הדפס היסטוריה
+                </button>
+            </div>
+        </div>
+
+        <!-- Order History -->
+        <div class="profile-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    היסטוריית הזמנות
+                </h3>
+                {% if orders.exists %}
+                    <small class="text-muted">{{ orders.count }} הזמנות</small>
+                {% endif %}
+            </div>
+
+            {% if orders.exists %}
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h6 class="mb-1 text-primary">{{ order.order_number }}</h6>
+                            <small class="text-muted">{{ order.created|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="order-status status-{{ order.status }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted small">
+                                {{ order.items.count }} פריט{% if order.items.count != 1 %}ים{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <h6 class="mb-0 text-success">₪{{ order.total_amount|floatformat:0 }}</h6>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'shop:order_detail' order.order_number %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>
+                                    צפה
+                                </a>
+                                <a href="{% url 'shop:order_confirmation' order.order_number %}" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-receipt me-1"></i>
+                                    קבלה
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items Preview -->
+                    <div class="order-summary mt-3">
+                        <div class="row">
+                            {% for item in order.items.all|slice:":3" %}
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-box me-1"></i>
+                                    {{ item.product.name }} ({{ item.quantity }})
+                                </small>
+                            </div>
+                            {% endfor %}
+                            {% if order.items.count > 3 %}
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-plus me-1"></i>
+                                    ועוד {{ order.items.count|add:"-3" }} פריטים...
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination could be added here if needed -->
+                
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h4>עדיין לא ביצעת הזמנות</h4>
+                    <p class="text-muted mb-4">התחל לקנות כדי לראות את ההיסטוריה שלך כאן</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        התחל קניות
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Print Styles -->
+    <style media="print">
+        body { background: white !important; }
+        .btn, .btn-group { display: none !important; }
+        .profile-header { background: #667eea !important; }
+        .order-card { border: 1px solid #ddd !important; page-break-inside: avoid; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
