@@ -1,50 +1,106 @@
 # shop/admin.py
 from django.contrib import admin
-from .models import Category, Product, CartItem, Order, OrderItem
+from .models import Category, Product, CartItem, Order, OrderItem, Marketer, Event, Kashrut
+
+@admin.register(Marketer)
+class MarketerAdmin(admin.ModelAdmin):
+    list_display = ['first_name', 'last_name', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['first_name', 'last_name']
+    list_editable = ['is_active']
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name']
+    list_editable = ['is_active']
+
+@admin.register(Kashrut)
+class KashrutAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name']
+    list_editable = ['is_active']
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
+    list_editable = ['is_active']
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'stock', 'available', 'created']
-    list_filter = ['available', 'created', 'category']
-    list_editable = ['price', 'stock', 'available']
+    list_display = ['name', 'category', 'kashrut', 'supplier', 'price', 'stock', 'is_active', 'total_orders', 'created_at']
+    list_filter = ['is_active', 'category', 'kashrut', 'created_at', 'unlimited_stock']
+    search_fields = ['name', 'supplier']
     prepopulated_fields = {'slug': ('name',)}
-    search_fields = ['name', 'description']
-
-@admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'quantity', 'created']
-    list_filter = ['created']
+    list_editable = ['is_active', 'price', 'stock']
+    readonly_fields = ['total_orders']
+    
+    fieldsets = (
+        ('מידע בסיסי', {
+            'fields': ('name', 'slug', 'description')
+        }),
+        ('קטגוריזציה', {
+            'fields': ('category', 'kashrut', 'supplier')
+        }),
+        ('מחיר ומלאי', {
+            'fields': ('price', 'unlimited_stock', 'stock')
+        }),
+        ('מידע נוסף', {
+            'fields': ('image', 'is_active', 'total_orders')
+        }),
+    )
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
+    readonly_fields = ['product', 'quantity', 'price']
     extra = 0
-    readonly_fields = ('product', 'quantity', 'price', 'get_total_price')
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_number', 'user', 'first_name', 'last_name', 'total_amount', 'status', 'created')
-    list_filter = ('status', 'created', 'updated')
-    search_fields = ('order_number', 'user__username', 'first_name', 'last_name', 'email')
-    readonly_fields = ('order_number', 'created', 'updated')
+    list_display = ['order_number', 'first_name', 'last_name', 'email', 'total_amount', 'status', 'payment_status', 'marketer', 'event', 'created_at']
+    list_filter = ['status', 'payment_status', 'marketer', 'event', 'created_at', 'updated_at']
+    search_fields = ['order_number', 'first_name', 'last_name', 'email']
+    readonly_fields = ['order_number', 'total_amount', 'total_items', 'created_at', 'updated_at']
+    list_editable = ['status', 'payment_status']
     inlines = [OrderItemInline]
     
     fieldsets = (
-        ('Order Info', {
-            'fields': ('order_number', 'user', 'status', 'total_amount')
+        ('מידע הזמנה', {
+            'fields': ('order_number', 'user', 'status', 'payment_status')
         }),
-        ('Customer Info', {
+        ('פרטי לקוח', {
             'fields': ('first_name', 'last_name', 'email', 'phone')
         }),
-        ('Shipping Address', {
-            'fields': ('address', 'city', 'postal_code')
+        ('כתובת', {
+            'fields': ('address', 'city', 'postal_code'),
+            'classes': ['collapse']
         }),
-        ('Timestamps', {
-            'fields': ('created', 'updated'),
-            'classes': ('collapse',)
+        ('פרטי מכירה', {
+            'fields': ('marketer', 'event')
+        }),
+        ('סיכום הזמנה', {
+            'fields': ('total_amount', 'total_items')
+        }),
+        ('תאריכים', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ['collapse']
         }),
     )
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'quantity', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'product__name']
+
+# OrderItem רק יופיע כ-inline, לא צריך admin נפרד
+# אבל אם תרצה, אפשר להוסיף:
+# @admin.register(OrderItem)
+# class OrderItemAdmin(admin.ModelAdmin):
+#     list_display = ['order', 'product', 'quantity', 'price']
+#     list_filter = ['order__created_at']
