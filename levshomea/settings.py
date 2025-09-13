@@ -88,10 +88,13 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+DEFAULT_CHARSET = 'utf-8'
+
 # Internationalization
-LANGUAGE_CODE = 'he'
-TIME_ZONE = 'Asia/Jerusalem'
+LANGUAGE_CODE = 'he'  # Change from 'en-us' to 'he'
+TIME_ZONE = 'Asia/Jerusalem'  # Israel timezone
 USE_I18N = True
+USE_L10N = True  # Make sure this is True
 USE_TZ = True
 
 # Authentication
@@ -100,3 +103,17 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Optional: Support both Hebrew and English
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = [
+    ('he', _('Hebrew')),
+    ('en', _('English')),
+]
+
+# Locale paths (add this to enable Hebrew translations)
+import os
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]

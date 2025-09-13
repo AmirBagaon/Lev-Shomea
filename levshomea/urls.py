@@ -9,5 +9,10 @@ urlpatterns = [
     path('', include('shop.urls')),
 ]
 
+# Customize admin site titles in Hebrew
+admin.site.site_header = 'לב שומע - ממשק ניהול'
+admin.site.site_title = 'לב שומע'  
+admin.site.index_title = 'ברוכים הבאים לממשק הניהול'
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
