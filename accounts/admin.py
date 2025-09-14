@@ -34,12 +34,12 @@ class SimpleUserAdmin(BaseUserAdmin):
         }),
         ('הרשאות', {
             'fields': ('is_active', 'is_staff'),
-            'description': 'is_active: המשתמש יכול להתחבר | is_staff: המשתמש יכול לגשת לממשק הניהול'
+            'description': 'מנהל: יכול לגשת לממשק הניהול ולנהל את המערכת'
         }),
         ('הרשאות מתקדמות', {
             'classes': ('collapse',),  # This makes it collapsible
             'fields': ('is_superuser', 'groups', 'user_permissions'),
-            'description': 'הגדרות מתקדמות - בדרך כלל לא צריך לשנות'
+            'description': 'הגדרות מתקדמות - רק למנהל על'
         }),
         ('תאריכים', {
             'classes': ('collapse',),  # This makes it collapsible
@@ -59,6 +59,78 @@ class SimpleUserAdmin(BaseUserAdmin):
     )
     
     readonly_fields = ('password_display', 'last_login', 'date_joined')
+    
+    def get_fieldsets(self, request, obj=None):
+        """Hide superuser field from non-superusers"""
+        fieldsets = super().get_fieldsets(request, obj)
+        
+        # If current user is not superuser, hide superuser checkbox and groups
+        if not request.user.is_superuser:
+            new_fieldsets = []
+            for name, data in fieldsets:
+                # Remove superuser and groups fields from advanced permissions
+                if name == 'הרשאות מתקדמות':
+                    fields = list(data.get('fields', []))
+                    # Remove is_superuser and groups from regular admins
+                    if 'is_superuser' in fields:
+                        fields.remove('is_superuser')
+                    if 'groups' in fields:
+                        fields.remove('groups')
+                    if 'user_permissions' in fields:
+                        fields.remove('user_permissions')
+                    
+                    # Only add the section if there are still fields left
+                    if fields:
+                        new_data = data.copy()
+                        new_data['fields'] = tuple(fields)
+                        new_data['description'] = 'הגדרות מתקדמות - מוגבל למנהל על בלבד'
+                        new_fieldsets.append((name, new_data))
+                else:
+                    new_fieldsets.append((name, data))
+            return new_fieldsets
+        
+        return fieldsets
+    
+    
+
+    def get_form(self, request, obj=None, **kwargs):
+        """Change field labels to Hebrew"""
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Change field labels to clearer Hebrew
+        if 'is_staff' in form.base_fields:
+            form.base_fields['is_staff'].label = 'מנהל'
+            form.base_fields['is_staff'].help_text = 'יכול לגשת לממשק הניהול ולנהל מוצרים והזמנות'
+        
+        if 'is_superuser' in form.base_fields:
+            form.base_fields['is_superuser'].label = 'מנהל על'  
+            form.base_fields['is_superuser'].help_text = 'הרשאות מלאות במערכת - יכול לנהל משתמשים ומנהלים'
+            
+            # Prevent users from removing their own superuser status
+            if obj and obj == request.user and obj.is_superuser:
+                form.base_fields['is_superuser'].disabled = True
+                form.base_fields['is_superuser'].help_text = '⚠️ לא ניתן לבטל הרשאות "מנהל על" עבור עצמך (למניעת נעילה)'
+
+        if 'is_active' in form.base_fields:
+            form.base_fields['is_active'].label = 'פעיל'
+            form.base_fields['is_active'].help_text = 'המשתמש יכול להתחבר למערכת'
+        
+        return form
+    
+    def has_delete_permission(self, request, obj=None):
+        """Only superusers can delete users"""
+        if obj and obj.is_superuser:
+            # Only superusers can delete other superusers
+            return request.user.is_superuser
+        # Regular admins can delete regular users and staff
+        return request.user.is_staff
+    
+    def has_change_permission(self, request, obj=None):
+        """Control who can edit which users"""
+        if obj and obj.is_superuser and not request.user.is_superuser:
+            # Regular admins cannot edit superusers
+            return False
+        return request.user.is_staff
     
     def password_display(self, obj):
         """Show a user-friendly password field with change password link"""
