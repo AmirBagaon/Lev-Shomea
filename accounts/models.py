@@ -1,7 +1,4 @@
-from django.db import models
-
-# Create your models here.
-
+# accounts/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -22,6 +19,7 @@ class UserProfile(models.Model):
     
     # פרטים נוספים
     phone = models.CharField(max_length=20, blank=True, verbose_name='טלפון')
+    phone2 = models.CharField(max_length=20, blank=True, verbose_name='טלפון נוסף')  # NEW FIELD
     address = models.CharField(max_length=200, blank=True, verbose_name='כתובת')
     
     # סוג משתמש
@@ -48,7 +46,7 @@ class UserProfile(models.Model):
     def full_name(self):
         return f'{self.user.first_name} {self.user.last_name}'
 
-# Signals - יצירת פרופיל אוטומטי כשנוצר משתמש חדש
+# Signals remain the same
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

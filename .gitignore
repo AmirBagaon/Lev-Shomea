@@ -51,6 +51,7 @@ Thumbs.db
 
 #tests
 /test.py
+/text.txt
 
 # Migrations (optional - some people include them)
 # */migrations/*.py
